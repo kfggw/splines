@@ -16,4 +16,13 @@ struct CurveConfig {
   static const int kBSplineMaxDegree;
 };
 
+class Array3D;
+class Array4D;
+
+using Point3D = Array3D;
+using Point4D = Array4D;
+
+using Vector3D = Array3D;
+using vector4D = Array4D;
+
 #endif

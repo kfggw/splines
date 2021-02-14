@@ -1,4 +1,4 @@
-#include "../include/ndarray.h"
+#include "ndarray.h"
 
 Array3D::Array3D() : x_(0), y_(0), z_(0) {}
 
@@ -65,13 +65,14 @@ Array3D operator*(const double &factor, const Array3D &array) {
 }
 
 StdOut &operator<<(StdOut &os, const Array3D &array) {
-  os << "(" << array.X() << ", " << array.Y() << ", " << array.Z() << ")";
+  os << array.X() << ", " << array.Y() << ", " << array.Z();
   return os;
 }
 
 Array4D::Array4D() : Array3D(), w_(1) {}
 
-Array4D::Array4D(double x, double y, double z, double w) : Array3D(), w_(w) {}
+Array4D::Array4D(double x, double y, double z, double w)
+    : Array3D(x, y, z), w_(w) {}
 
 Array4D::Array4D(const Array4D &other) : Array3D(other), w_(other.W()) {}
 
@@ -122,7 +123,7 @@ Array4D operator*(const double &factor, const Array4D &array) {
 }
 
 StdOut &operator<<(StdOut &os, const Array4D &array) {
-  os << "(" << array.X() << ", " << array.Y() << ", " << array.Z() << ", "
-     << array.W() << ")";
+  os << array.X() << ", " << array.Y() << ", " << array.Z() << ", "
+     << array.W();
   return os;
 }
