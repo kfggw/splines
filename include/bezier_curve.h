@@ -1,9 +1,10 @@
 #ifndef BEZIER_CURVE_H
 #define BEZIER_CURVE_H
 
+#include <vector>
+
 #include "commons.h"
 #include "spline_curve.h"
-#include <vector>
 
 // BezierCurve, 控制顶点, 有理, 权重
 
@@ -12,7 +13,7 @@
  *
  */
 class BezierCurve : public SplineCurve {
-public:
+ public:
   BezierCurve(bool is_rational = false);
 
   BezierCurve(std::vector<Point3D> poles);
@@ -23,21 +24,24 @@ public:
 
   void SetWeights(std::vector<double> weights);
 
-public:
+ public:
   Point3D D0(double t) const override;
 
   Vector3D D1(double t) const override;
 
   Vector3D D2(double t) const override;
 
-private:
+ private:
   Point3D D0OfRational(double t) const;
   Point3D D0OfNonRational(double t) const;
 
   Vector3D D1OfRational(double t) const;
   Vector3D D1OfNonRational(double t) const;
 
-private:
+  Vector3D D2OfRational(double t) const;
+  Vector3D D2OfNonRational(double t) const;
+
+ private:
   bool is_rational_;
   std::vector<Point3D> poles_;
   std::vector<double> weights_;

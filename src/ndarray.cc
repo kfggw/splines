@@ -37,6 +37,13 @@ Array3D &Array3D::operator-=(const Array3D &other) {
   return *this;
 }
 
+Array3D &Array3D::operator=(const Array3D &other) {
+  x_ = other.X();
+  y_ = other.Y();
+  z_ = other.Z();
+  return *this;
+}
+
 inline double Array3D::X() const { return x_; }
 inline double Array3D::Y() const { return y_; }
 inline double Array3D::Z() const { return z_; }
@@ -46,13 +53,13 @@ inline Array3D &Array3D::X(double x) {
   return *this;
 }
 
-inline Array3D &Array3D::Y(double x) {
-  x_ = x;
+inline Array3D &Array3D::Y(double y) {
+  y_ = y;
   return *this;
 }
 
-inline Array3D &Array3D::Z(double x) {
-  x_ = x;
+inline Array3D &Array3D::Z(double z) {
+  z_ = z;
   return *this;
 }
 
@@ -103,6 +110,12 @@ Array4D &Array4D::operator-=(const Array4D &other) {
   double w = W();
   X(x - other.X()).Y(y - other.Y()).Z(z - other.Z());
   W(w - other.W());
+  return *this;
+}
+
+Array4D &Array4D::operator=(const Array4D &other) {
+  X(other.X()).Y(other.Y()).Z(other.Z());
+  w_ = other.W();
   return *this;
 }
 

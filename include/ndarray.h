@@ -8,7 +8,7 @@
  *
  */
 class Array3D {
-public:
+ public:
   Array3D();
   Array3D(double x, double y, double z);
 
@@ -21,6 +21,8 @@ public:
   Array3D operator-(const Array3D &other) const;
   Array3D &operator-=(const Array3D &other);
 
+  Array3D &operator=(const Array3D &other);
+
   // Getters and Setters
   double X() const;
   double Y() const;
@@ -30,7 +32,7 @@ public:
   Array3D &Y(double y);
   Array3D &Z(double z);
 
-private:
+ private:
   double x_, y_, z_;
 };
 
@@ -45,7 +47,7 @@ StdOut &operator<<(StdOut &os, const Array3D &array);
  *
  */
 class Array4D : public Array3D {
-public:
+ public:
   Array4D();
   Array4D(double x, double y, double z, double w);
   Array4D(const Array4D &other);
@@ -57,10 +59,12 @@ public:
   Array4D operator-(const Array4D &other) const;
   Array4D &operator-=(const Array4D &other);
 
+  Array4D &operator=(const Array4D &other);
+
   double W() const;
   Array4D &W(double w);
 
-private:
+ private:
   double w_;
 };
 

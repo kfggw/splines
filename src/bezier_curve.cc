@@ -1,8 +1,10 @@
 #include "bezier_curve.h"
-#include "commons.h"
+
 #include <cassert>
 #include <iostream>
 #include <vector>
+
+#include "commons.h"
 
 BezierCurve::BezierCurve(bool is_rational) : is_rational_(is_rational) {}
 
@@ -30,8 +32,7 @@ void BezierCurve::SetPoles(std::vector<Point3D> poles) {
  * @param weights
  */
 void BezierCurve::SetWeights(std::vector<double> weights) {
-  if (is_rational_)
-    weights_.assign(weights.begin(), weights.end());
+  if (is_rational_) weights_.assign(weights.begin(), weights.end());
 }
 
 Point3D BezierCurve::D0(double t) const {
@@ -41,17 +42,27 @@ Point3D BezierCurve::D0(double t) const {
     return D0OfNonRational(t);
 }
 
-Vector3D BezierCurve::D1(double t) const { return Vector3D(); }
+Vector3D BezierCurve::D1(double t) const {
+  if (is_rational_)
+    return D1OfRational(t);
+  else
+    return D1OfNonRational(t);
+}
 
-Vector3D BezierCurve::D2(double t) const { return Vector3D(); }
+Vector3D BezierCurve::D2(double t) const {
+  if (is_rational_)
+    return D2OfRational(t);
+  else
+    return D2OfNonRational(t);
+}
 
 Point3D BezierCurve::D0OfRational(double t) const {
   assert(t >= 0 && t <= 1);
-  int size = poles_.size();
+  auto size = poles_.size();
   assert(size == weights_.size());
 
   std::vector<Point4D> buf(size);
-  for (int i = 0; i < size; ++i) {
+  for (unsigned i = 0; i < size; ++i) {
     buf[i] = DimUp(poles_[i], weights_[i]);
   }
 
@@ -84,7 +95,7 @@ Point3D BezierCurve::D0OfNonRational(double t) const {
 
 Vector3D BezierCurve::D1OfRational(double t) const {
   assert(t >= 0 && t <= 1);
-  int size = poles_.size();
+  auto size = poles_.size();
   assert(size == weights_.size());
 
   int n = size - 1;
@@ -126,13 +137,75 @@ Vector3D BezierCurve::D1OfNonRational(double t) const {
   int n = poles_.size() - 1;
   // 递推1次, 得到新的控制顶点
   std::vector<Point3D> buf{poles_};
-  for (int i = 0; i <= n - 1; ++i) {
-    buf[i] = (1 - t) * buf[i] + t * buf[i + 1];
+  for (int i = 0; i < n; ++i) {
+    buf[i] = n * (buf[i + 1] - buf[i]);
   }
 
   // 递推n-1次, 得到1阶导矢
   for (int L = 1; L <= n - 1; ++L) {
     for (int i = 0; i < n - L; ++i) {
+      buf[i] = (1 - t) * buf[i] + t * buf[i + 1];
+    }
+  }
+
+  return buf[0];
+}
+
+Vector3D BezierCurve::D2OfRational(double t) const {
+  assert(t >= 0 && t <= 1);
+  auto size = poles_.size();
+  assert(size == weights_.size());
+
+  int n = size - 1;
+  std::vector<Point4D> buf1(n + 1);
+  std::vector<Point4D> buf2(n + 1);
+  // 升到4D
+  for (int i = 0; i <= n; ++i) {
+    buf1[i] = DimUp(poles_[i], weights_[i]);
+    buf2[i] = buf1[i];
+  }
+
+  // 递推2次得到n-1个控制顶点
+  for (int L = 1; L <= 2; ++L) {
+    for (int i = 0; i <= n - L; ++i) {
+      buf1[i] = (n - 1 + L) * (buf1[i + 1] - buf1[i]);
+    }
+  }
+
+  // 递推n-2次得到结果
+  for (int L = 1; L <= n - 2; ++L) {
+    for (int i = 0; i <= n - 2 - L; ++i) {
+      buf1[i] = (1 - t) * buf1[i] + t * buf1[i + 1];
+    }
+  }
+
+  // buf2递推n次得到曲线上的点
+  for (int L = 1; L <= n; ++L) {
+    for (int i = 0; i <= n - L; ++i) {
+      buf2[i] = (1 - t) * buf2[i] + t * buf2[i + 1];
+    }
+  }
+
+  Point4D pt4d1 = buf2[0];
+  Point4D pt4d2 = buf2[0] + buf1[0];
+
+  return DimDown(pt4d2) - DimDown(pt4d1);
+}
+
+Vector3D BezierCurve::D2OfNonRational(double t) const {
+  assert(t >= 0 && t <= 1);
+  int n = poles_.size() - 1;
+  std::vector<Point3D> buf{poles_};
+  // 递推2次得到n-1个控制顶点
+  for (int L = 1; L <= 2; ++L) {
+    for (int i = 0; i <= n - L; ++i) {
+      buf[i] = (n - 1 + L) * (buf[i + 1] - buf[i]);
+    }
+  }
+
+  // 递推n-2次得到结果
+  for (int L = 1; L <= n - 2; ++L) {
+    for (int i = 0; i <= n - 2 - L; ++i) {
       buf[i] = (1 - t) * buf[i] + t * buf[i + 1];
     }
   }
